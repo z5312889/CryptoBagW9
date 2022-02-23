@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">New App Name CryptoBag</string>
-    <string name="hello_message">hello world</string>
+    <string name="app_name">CryptoBag</string>
+    <string name="hello_message">Hello from CryptoBag App</string>
 </resources>
