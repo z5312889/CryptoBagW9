@@ -11,28 +11,52 @@ import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
 
+    public static final String INTENT_MESSAGE = "au.edu.unsw infs3634.covidtracker.intent_message";
+    private TextView tCoin, tvSymbol, tValueUSD, tvChange1h, tvChange24h, tvChange7d, tvMarketCap, tvVolume;
+    private Button bSearch;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
         setTitle("Detail Activity");
-        Button button = findViewById(R.id.btnPlayVideo);
 
-        //make a text view and find the view by ID
-        TextView detailMsg = findViewById(R.id.detailMsg);
+        tCoin = findViewById(R.id.tCoin);
+        tvSymbol = findViewById(R.id.tvSymbol);
+        tValueUSD = findViewById(R.id.tValueUSD);
+        tvChange1h = findViewById(R.id.tvChange1h);
+        tvChange24h = findViewById(R.id.tvChange24h);
+        tvChange7d = findViewById(R.id.tvChange7d);
+        tvMarketCap = findViewById(R.id.tvMarketCap);
+        tvVolume = findViewById(R.id.tvVolume);
+        bSearch = findViewById(R.id.btSearch);
 
-        //get the message from main activity using getStringExtra
-        final String getMessage = getIntent().getStringExtra("message");
+        Intent intent = getIntent();
 
-        //set the text of the text view to be the message we got from main activity
-        detailMsg.setText(getMessage);
+        String id = intent.getStringExtra(INTENT_MESSAGE);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=dQw4w9WgXcQ"));
-                startActivity(intent);
-            }
-        });
+        Coin coin = Coin.getCoin(id);
+
+        if (coin != null) {
+            setTitle(coin.getName());
+            tCoin.setText(coin.getName());
+            tvSymbol.setText(String.valueOf(coin.getSymbol()));
+            tValueUSD.setText(String.valueOf(coin.getPriceUsd()));
+            tvChange1h.setText(String.valueOf(coin.getPercentChange1h()));
+            tvChange24h.setText(String.valueOf(coin.getPercentChange24h()));
+            tvChange7d.setText(String.valueOf(coin.getPercentChange7d()));
+            tvMarketCap.setText(String.valueOf(coin.getMarketCapUsd()));
+            tvVolume.setText(String.valueOf(coin.getVolume24()));
+            bSearch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
+                    startActivity(intent);
+                }
+            });
+
+
+        }
     }
 }

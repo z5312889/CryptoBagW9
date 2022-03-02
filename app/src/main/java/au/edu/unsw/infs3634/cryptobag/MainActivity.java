@@ -18,20 +18,15 @@ public class MainActivity extends AppCompatActivity {
     button.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
-        //Note always make the parameters the class this is .this, theOtherClass.class
-        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-
-        //message variable
-        message = "Hello from main activity";
-
-        //putting the message into an intent for us to retrieve later
-        intent.putExtra("message", message);
-
-        //starting the intent
-        startActivity(intent);
-
-
+        launchDetailActivity("Stellar");
       }
     });
   }
+       private void launchDetailActivity(String message) {
+        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+
+        intent.putExtra(DetailActivity.INTENT_MESSAGE, message);
+        //starting the intent
+        startActivity(intent);
+      }
 }
