@@ -5,58 +5,75 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class DetailActivity extends AppCompatActivity {
+import java.text.NumberFormat;
+import java.util.ArrayList;
 
-    public static final String INTENT_MESSAGE = "au.edu.unsw infs3634.covidtracker.intent_message";
-    private TextView tCoin, tvSymbol, tValueUSD, tvChange1h, tvChange24h, tvChange7d, tvMarketCap, tvVolume;
-    private Button bSearch;
+public class DetailActivity extends AppCompatActivity {
+    public static final String INTENT_MESSAGE = "intent_message";
+    private static final String TAG = "DetailActivity";
+    private TextView mName;
+    private TextView mSymbol;
+    private TextView mValue;
+    private TextView mChange1h;
+    private TextView mChange24h;
+    private TextView mChange7d;
+    private TextView mMarketcap;
+    private TextView mVolume;
+    private ImageView mSearch;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        setTitle("Detail Activity");
 
-        tCoin = findViewById(R.id.tCoin);
-        tvSymbol = findViewById(R.id.tvSymbol);
-        tValueUSD = findViewById(R.id.tValueUSD);
-        tvChange1h = findViewById(R.id.tvChange1h);
-        tvChange24h = findViewById(R.id.tvChange24h);
-        tvChange7d = findViewById(R.id.tvChange7d);
-        tvMarketCap = findViewById(R.id.tvMarketCap);
-        tvVolume = findViewById(R.id.tvVolume);
-        bSearch = findViewById(R.id.btSearch);
+        // Get handle for view elements
+        mName = findViewById(R.id.tvName);
+        mSymbol = findViewById(R.id.tvSymbol);
+        mValue = findViewById(R.id.tvValueField);
+        mChange1h = findViewById(R.id.tvChange1hField);
+        mChange24h = findViewById(R.id.tvChange24hField);
+        mChange7d = findViewById(R.id.tvChange7dField);
+        mMarketcap = findViewById(R.id.tvMarketcapField);
+        mVolume = findViewById(R.id.tvVolumeField);
+        mSearch = findViewById(R.id.ivSearch);
 
+        // Get the intent that started this activity
         Intent intent = getIntent();
-
-        String id = intent.getStringExtra(INTENT_MESSAGE);
-
-        Coin coin = Coin.getCoin(id);
-
-        if (coin != null) {
-            setTitle(coin.getName());
-            tCoin.setText(coin.getName());
-            tvSymbol.setText(String.valueOf(coin.getSymbol()));
-            tValueUSD.setText(String.valueOf(coin.getPriceUsd()));
-            tvChange1h.setText(String.valueOf(coin.getPercentChange1h()));
-            tvChange24h.setText(String.valueOf(coin.getPercentChange24h()));
-            tvChange7d.setText(String.valueOf(coin.getPercentChange7d()));
-            tvMarketCap.setText(String.valueOf(coin.getMarketCapUsd()));
-            tvVolume.setText(String.valueOf(coin.getVolume24()));
-            bSearch.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
-                    startActivity(intent);
-                }
-            });
-
-
+        if (intent.hasExtra(INTENT_MESSAGE)) {
+            String coinSymbol = intent.getStringExtra(INTENT_MESSAGE);
+            Log.d(TAG, "INTENT_MESSAGE = " + coinSymbol);
+            Coin coin = Coin.findCoin(coinSymbol);
+            if(coin != null) {
+                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                setTitle(coin.getName());
+                mName.setText(coin.getName());
+                mSymbol.setText(coin.getSymbol());
+                mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
+                mChange1h.setText(coin.getPercentChange1h() + " %");
+                mChange24h.setText(coin.getPercentChange24h() + " %");
+                mChange7d.setText(coin.getPercentChange7d() + " %");
+                mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
+                mVolume.setText(formatter.format(coin.getVolume24()));
+                mSearch.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        searchCoin(coin.getName());
+                    }
+                });
+            }
         }
     }
+
+    private void searchCoin(String name) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + name));
+        startActivity(intent);
+    }
+
 }
