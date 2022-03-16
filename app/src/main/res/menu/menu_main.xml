@@ -9,10 +9,10 @@
         <menu>
             <item
                 android:id="@+id/sortName"
-                android:title="sortName" />
+                android:title="Sort Name" />
             <item
                 android:id="@+id/sortValue"
-                android:title="sortValue" />
+                android:title="Sort Value" />
         </menu>
     </item>
     <item
