@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:icon="@drawable/outline_sort_white_24dp"
+        android:title="Sort"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/sortName"
+                android:title="sortName" />
+            <item
+                android:id="@+id/sortValue"
+                android:title="sortValue" />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/app_bar_search"
+        android:icon="@drawable/outline_search_white_24dp"
+        android:title="Search"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+</menu>
