@@ -1,6 +1,9 @@
 package au.edu.unsw.infs3634.cryptobag;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class Coin {
   private String id;
@@ -175,7 +178,10 @@ public class Coin {
   }
 
   public static Coin findCoin(String symbol) {
-    ArrayList<Coin> coins = Coin.getCoins();
+    Gson gson = new Gson();
+    CoinLoreResponse coinLoreResponse = gson.fromJson(CoinLoreResponse.jsonData, CoinLoreResponse.class);
+    List<Coin> coins = coinLoreResponse.getData();
+   // List<Coin> coins = Coin.getCoins();
     for(final Coin coin : coins) {
       if(coin.getSymbol().equals(symbol)) {
         return coin;
