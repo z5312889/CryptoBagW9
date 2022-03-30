@@ -1,12 +1,60 @@
 package au.edu.unsw.infs3634.cryptobag;
 
 import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Coin {
+  @SerializedName("id")
+  @Expose
   private String id;
+  @SerializedName("symbol")
+  @Expose
+  private String symbol;
+  @SerializedName("name")
+  @Expose
+  private String name;
+  @SerializedName("nameid")
+  @Expose
+  private String nameid;
+  @SerializedName("price_usd")
+  @Expose
+  private String priceUsd;
+  @SerializedName("percent_change_24h")
+  @Expose
+  private String percentChange24h;
+  @SerializedName("percent_change_1h")
+  @Expose
+  private String percentChange1h;
+  @SerializedName("percent_change_7d")
+  @Expose
+  private String percentChange7d;
+  @SerializedName("price_btc")
+  @Expose
+  private String priceBtc;
+  @SerializedName("market_cap_usd")
+  @Expose
+  private String marketCapUsd;
+  @SerializedName("volume24")
+  @Expose
+  private Double volume24;
+  @SerializedName("volume24a")
+  @Expose
+  private Double volume24a;
+  @SerializedName("csupply")
+  @Expose
+  private String csupply;
+  @SerializedName("tsupply")
+  @Expose
+  private String tsupply;
+  @SerializedName("msupply")
+  @Expose
+  private String msupply;
+
+ /* private String id;
   private String symbol;
   private String name;
   private String nameid;
@@ -21,7 +69,7 @@ public class Coin {
   private Double volume24a;
   private String csupply;
   private String tsupply;
-  private String msupply;
+  private String msupply; */
 
   public Coin(String name, String symbol, String priceUsd, String change1h, String change24h, String change7d, String marketcap, double volume) {
     this.name = name;
@@ -66,13 +114,13 @@ public class Coin {
     this.nameid = nameid;
   }
 
-  public Integer getRank() {
+ /* public Integer getRank() {
     return rank;
   }
 
   public void setRank(Integer rank) {
     this.rank = rank;
-  }
+  } */
 
   public String getPriceUsd() {
     return priceUsd;
@@ -162,7 +210,7 @@ public class Coin {
     this.msupply = msupply;
   }
 
-  public static ArrayList<Coin> getCoins() {
+ /* public static ArrayList<Coin> getCoins() {
     ArrayList<Coin> coins = new ArrayList<>();
     coins.add(new Coin("Bitcoin", "BTC", "38785.21", "-5.30", "0.06", "6.25", "734812139048.78", 19044303069.795288));
     coins.add(new Coin("Ethereum", "ETH", "2755.05", "-5.94", "0.00", "14.58", "18116094926.74", 11453091518.956093));
@@ -175,7 +223,7 @@ public class Coin {
     coins.add(new Coin("Binance Coin", "BNB", "373.06", "-5.04", "0.24", "12.51", "2675482775.95", 233309183.3948947));
     coins.add(new Coin("Stellar", "XLM", "0.190500", "-2.09", "1.78", "25.85", "1232939271.42", 502557303.372596));
     return coins;
-  }
+  } */
 
   public static Coin findCoin(String symbol) {
     Gson gson = new Gson();

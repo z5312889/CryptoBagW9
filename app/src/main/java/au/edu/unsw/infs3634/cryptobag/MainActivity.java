@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -66,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
       }
     };
     // Create an adapter instance and supply the coins data to be displayed
-    mAdapter = new CoinAdapter(Coin.getCoins(), listener);
+    mAdapter = new CoinAdapter((ArrayList<Coin>)coin, listener);
+    //mAdapter = new CoinAdapter(Coin.getCoins(), listener);
     mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
     // Connect the adapter with the RecyclerView
     mRecyclerView.setAdapter(mAdapter);
