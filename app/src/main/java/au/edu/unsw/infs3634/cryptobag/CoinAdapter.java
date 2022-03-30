@@ -15,27 +15,40 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder> {
-    public static final int SORT_COIN_NAME = 1;
-    public static final int SORT_COIN_PRICE = 2;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Filter;
+import android.widget.Filterable;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder> implements Filterable {
     private ArrayList<Coin> mCoins, mCoinsFiltered;
-    private RecyclerViewClickListener mListener;
-    // private static final int SORT_COIN_NAME = 1;
-    // private static final int SORT_COIN_PRICE = 2;
+    private RecyclerViewListener mListener;
+    public static final int SORT_METHOD_NAME = 1;
+    public static final int SORT_METHOD_VALUE = 2;
 
     // Constructor method for CoinAdapter class
-    public CoinAdapter(ArrayList<Coin> coins, RecyclerViewClickListener listener) {
+    public CoinAdapter(ArrayList<Coin> coins, RecyclerViewListener listener) {
         mCoins = coins;
-        mListener = listener;
         mCoinsFiltered = coins;
+        mListener = listener;
     }
 
-    //@Override
+    @Override
     public Filter getFilter() {
         return new Filter() {
             @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                String charString = constraint.toString();
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String charString = charSequence.toString();
                 if (charString.isEmpty()) {
                     mCoinsFiltered = mCoins;
                 } else {
@@ -53,18 +66,17 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
             }
 
             @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                mCoinsFiltered = (ArrayList<Coin>) results.values;
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                mCoinsFiltered = (ArrayList<Coin>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
     }
 
     // ClickListener interface
-    public interface RecyclerViewClickListener {
+    public interface RecyclerViewListener {
         void onClick(View view, String coinSymbol);
     }
-
 
     // Create a ViewHolder and return it
     @NonNull
@@ -77,7 +89,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
     // Associate data with the view holder for a given position in the RecyclerView
     @Override
     public void onBindViewHolder(@NonNull CoinAdapter.CoinViewHolder holder, int position) {
-        Coin coin = mCoins.get(position);
+        Coin coin = mCoinsFiltered.get(position);
 
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         holder.name.setText(coin.getName());
@@ -90,16 +102,16 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
     // Return the number of data items available for displaying
     @Override
     public int getItemCount() {
-        return mCoins.size();
+        return mCoinsFiltered.size();
     }
 
     // Extend the signature of CoinViewHolder to implement a click listener
-    public static class CoinViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public static class CoinViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView name, value, change;
-        private RecyclerViewClickListener mListener;
+        public RecyclerViewListener mListener;
 
         // Constructor method for CoinViewHolder class
-        public CoinViewHolder(@NonNull View itemView, RecyclerViewClickListener listener) {
+        public CoinViewHolder(@NonNull View itemView, RecyclerViewListener listener) {
             super(itemView);
             mListener = listener;
             itemView.setOnClickListener(this);
@@ -114,24 +126,22 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
         }
     }
 
+    // Use the Java Collections.sort() and Comparator methods to sort the list
     public void sort(final int sortMethod) {
-        if(mCoinsFiltered.size() > 0) {
+        if (mCoinsFiltered.size() > 0) {
             Collections.sort(mCoinsFiltered, new Comparator<Coin>() {
                 @Override
                 public int compare(Coin o1, Coin o2) {
-                    if(sortMethod == SORT_COIN_NAME) {
-                        // sort by coin name
-                        return o2.getName().compareTo(o1.getName());
-
-                    } else if (sortMethod == SORT_COIN_PRICE){
-                        //sort by price
-                        return Double.valueOf(o2.getPriceUsd()).compareTo(Double.valueOf(o1.getPriceUsd()));
+                    if(sortMethod == SORT_METHOD_NAME) {
+                        return o1.getName().compareTo(o2.getName());
+                    } else if(sortMethod == SORT_METHOD_VALUE) {
+                        return Double.valueOf(o1.getPriceUsd()).compareTo(Double.valueOf(o2.getPriceUsd()));
                     }
-                    return o2.getName().compareTo(o1.getName());
+                    // By default sort the list by coin name
+                    return o1.getName().compareTo(o2.getName());
                 }
             });
         }
         notifyDataSetChanged();
     }
-
 }

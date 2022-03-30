@@ -13,13 +13,30 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import java.util.List;
 import java.util.Random;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.SearchView;
+import android.widget.TextView;
+
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
   private static final String TAG = "MainActivity";
   private RecyclerView mRecyclerView;
   private CoinAdapter mAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
+  public static final String response = CoinLoreResponse.jsonData;
 
 
   @Override
@@ -31,33 +48,41 @@ public class MainActivity extends AppCompatActivity {
     mRecyclerView = findViewById(R.id.rvList);
     mRecyclerView.setHasFixedSize(true);
 
+  Gson gson = new Gson();
+    CoinLoreResponse coinLoreResponse = gson.fromJson(response, CoinLoreResponse.class);
+ // CoinLoreResponse coinLoreResponse = newGson(response, CoinLoreResponse.class);
+  List<Coin> coin = coinLoreResponse.getData();
+
     // Instantiate a LinearLayoutManager
     mLayoutManager = new LinearLayoutManager(this);
     mRecyclerView.setLayoutManager(mLayoutManager);
 
     // Implement ClickListener for list items
-    CoinAdapter.RecyclerViewClickListener listener = new CoinAdapter.RecyclerViewClickListener() {
+    CoinAdapter.RecyclerViewListener listener = new CoinAdapter.RecyclerViewListener() {
       @Override
       public void onClick(View view, String coinSymbol) {
+        // Launch DetailActivity
         launchDetailActivity(coinSymbol);
       }
     };
     // Create an adapter instance and supply the coins data to be displayed
     mAdapter = new CoinAdapter(Coin.getCoins(), listener);
+    mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
     // Connect the adapter with the RecyclerView
     mRecyclerView.setAdapter(mAdapter);
 
   }
 
   @Override
-  public boolean onCreateOptionsMenu (Menu menu) {
+  // Instantiate the menu
+  public boolean onCreateOptionsMenu(Menu menu) {
     MenuInflater inflater = getMenuInflater();
     inflater.inflate(R.menu.menu_main, menu);
     SearchView searchView = (SearchView) menu.findItem(R.id.app_bar_search).getActionView();
     searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
       @Override
       public boolean onQueryTextSubmit(String query) {
-        mAdapter.getFilter().filter(query);
+        mAdapter .getFilter().filter(query);
         return false;
       }
 
@@ -71,16 +96,17 @@ public class MainActivity extends AppCompatActivity {
   }
 
   @Override
-  public boolean onOptionsItemSelected(MenuItem item){
+  // React to user interaction with the menu
+  public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.sortName:
-        mAdapter.sort(CoinAdapter.SORT_COIN_NAME);
+        mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
         return true;
       case R.id.sortValue:
-        mAdapter.sort(CoinAdapter.SORT_COIN_PRICE);
+        mAdapter.sort(CoinAdapter.SORT_METHOD_VALUE);
         return true;
       default:
-        return  super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
   }
 
