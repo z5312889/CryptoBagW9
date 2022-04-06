@@ -58,50 +58,49 @@ public class DetailActivity extends AppCompatActivity {
             Log.d(TAG, "INTENT_MESSAGE = " + coinSymbol);
             Coin coin = Coin.findCoin(coinSymbol);
 
-        Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.coinlore.net").addConverterFactory(GsonConverterFactory.create()).build();
-        CoinService service = retrofit.create(CoinService.class);
-        Call<CoinLoreResponse> responseCall = service.getResponse();
-        responseCall.enqueue(new Callback<CoinLoreResponse>()
+            Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.coinlore.net").addConverterFactory(GsonConverterFactory.create()).build();
+            CoinService service = retrofit.create(CoinService.class);
+            Call<CoinLoreResponse> responseCall = service.getResponse();
+            responseCall.enqueue(new Callback<CoinLoreResponse>() {
+                @Override
+                public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
+                    List<Coin> coins = response.body().getData();
+                    for (Coin coin : coins) {
+                        if (coinSymbol.equals(coin.getName())) {
 
-        {
-        @Override
-                public void onResponse(Call<CoinLoreResponse>, Response<CoinLoreResponse> response) {
-            List<Coin> coins = response.body().getData();
-            for (Coin coin : coins) {
-                if (coinSymbol.equals(coin.getName())) {
-
-                    if (coin != null) {
-                        NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                        setTitle(coin.getName());
-                        mName.setText(coin.getName());
-                        mSymbol.setText(coin.getSymbol());
-                        mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
-                        mChange1h.setText(coin.getPercentChange1h() + " %");
-                        mChange24h.setText(coin.getPercentChange24h() + " %");
-                        mChange7d.setText(coin.getPercentChange7d() + " %");
-                        mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
-                        mVolume.setText(formatter.format(coin.getVolume24()));
-                        mSearch.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
-                                //     startActivity(intent);
+                            if (coin != null) {
+                                NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                                setTitle(coin.getName());
+                                mName.setText(coin.getName());
+                                mSymbol.setText(coin.getSymbol());
+                                mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
+                                mChange1h.setText(coin.getPercentChange1h() + " %");
+                                mChange24h.setText(coin.getPercentChange24h() + " %");
+                                mChange7d.setText(coin.getPercentChange7d() + " %");
+                                mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
+                                mVolume.setText(formatter.format(coin.getVolume24()));
+                                mSearch.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
+                                        startActivity(intent);
+                                    }
+                                    //  searchCoin(coin.getName());
+                                });
                             }
-                              //  searchCoin(coin.getName());
-                            }
-                        });
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure (Call < CoinLoreResponse > call, Throwable t){
+                @Override
+                public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
 
-                //  private void searchCoin(String name) {
-                //      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
-                //     startActivity(intent);
-            }
-        });
+                    //  private void searchCoin(String name) {
+                    //      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
+                    //     startActivity(intent);
+                }
+            });
         }
 
+    }
 }
