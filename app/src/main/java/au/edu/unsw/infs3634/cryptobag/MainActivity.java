@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -32,6 +33,13 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+
 public class MainActivity extends AppCompatActivity {
   private static final String TAG = "MainActivity";
   private RecyclerView mRecyclerView;
@@ -49,10 +57,10 @@ public class MainActivity extends AppCompatActivity {
     mRecyclerView = findViewById(R.id.rvList);
     mRecyclerView.setHasFixedSize(true);
 
-  Gson gson = new Gson();
-    CoinLoreResponse coinLoreResponse = gson.fromJson(response, CoinLoreResponse.class);
- // CoinLoreResponse coinLoreResponse = newGson(response, CoinLoreResponse.class);
-  List<Coin> coin = coinLoreResponse.getData();
+  //  Gson gson = new Gson();
+  //  CoinLoreResponse coinLoreResponse = gson.fromJson(response, CoinLoreResponse.class);
+
+ //   List<Coin> coin = coinLoreResponse.getData();
 
     // Instantiate a LinearLayoutManager
     mLayoutManager = new LinearLayoutManager(this);
@@ -67,13 +75,39 @@ public class MainActivity extends AppCompatActivity {
       }
     };
     // Create an adapter instance and supply the coins data to be displayed
-    mAdapter = new CoinAdapter((ArrayList<Coin>)coin, listener);
-    //mAdapter = new CoinAdapter(Coin.getCoins(), listener);
-    mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
+   // mAdapter = new CoinAdapter((ArrayList<Coin>) coin, listener);
+    mAdapter = new CoinAdapter(new ArrayList<Coin>(), listener);
+
+     mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
     // Connect the adapter with the RecyclerView
+       mRecyclerView.setAdapter(mAdapter);
+
+ // }
+
+  Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.coinlore.net").addConverterFactory(GsonConverterFactory.create()).build();
+  CoinService service = retrofit.create(CoinService.class);
+  Call<CoinLoreResponse> responseCall = service.getResponse();
+  responseCall.enqueue(new Callback<CoinLoreResponse>()
+
+  {
+    @Override
+    public void onResponse (Call<CoinLoreResponse> call, Response<CoinLoreResponse> response){
+    Log.d(TAG, "API call successful!");
+    List<Coin> coins = response.body().getData();
+    Log.d(TAG, coins.get(1).getPriceUsd());
+    mAdapter.setData((ArrayList)coins);
+    mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
     mRecyclerView.setAdapter(mAdapter);
 
   }
+
+    @Override
+    public void onFailure (Call < CoinLoreResponse > call, Throwable t){
+    Log.d(TAG, "API call failure");
+  }
+  });
+}
+
 
   @Override
   // Instantiate the menu
@@ -111,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
   }
+
+
 
   // Called when user taps on a row on the RecyclerView
   private void launchDetailActivity(String message){
