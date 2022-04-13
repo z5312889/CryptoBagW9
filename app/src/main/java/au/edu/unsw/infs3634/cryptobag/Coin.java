@@ -1,5 +1,9 @@
 package au.edu.unsw.infs3634.cryptobag;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.gson.Gson;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,7 +11,11 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Coin {
+
+  @PrimaryKey
+  @NonNull
   @SerializedName("id")
   @Expose
   private String id;
@@ -20,6 +28,9 @@ public class Coin {
   @SerializedName("nameid")
   @Expose
   private String nameid;
+  @SerializedName("rank")
+  @Expose
+  private Integer rank;
   @SerializedName("price_usd")
   @Expose
   private String priceUsd;
@@ -54,34 +65,6 @@ public class Coin {
   @Expose
   private String msupply;
 
- /* private String id;
-  private String symbol;
-  private String name;
-  private String nameid;
-  private Integer rank;
-  private String priceUsd;
-  private String percentChange24h;
-  private String percentChange1h;
-  private String percentChange7d;
-  private String priceBtc;
-  private String marketCapUsd;
-  private Double volume24;
-  private Double volume24a;
-  private String csupply;
-  private String tsupply;
-  private String msupply; */
-
-  public Coin(String name, String symbol, String priceUsd, String change1h, String change24h, String change7d, String marketcap, double volume) {
-    this.name = name;
-    this.symbol = symbol;
-    this.priceUsd = priceUsd;
-    this.percentChange1h = change1h;
-    this.percentChange24h = change24h;
-    this.percentChange7d = change7d;
-    this.marketCapUsd = marketcap;
-    this.volume24 = volume;
-  }
-
   public String getId() {
     return id;
   }
@@ -114,13 +97,13 @@ public class Coin {
     this.nameid = nameid;
   }
 
- /* public Integer getRank() {
+  public Integer getRank() {
     return rank;
   }
 
   public void setRank(Integer rank) {
     this.rank = rank;
-  } */
+  }
 
   public String getPriceUsd() {
     return priceUsd;
@@ -208,34 +191,6 @@ public class Coin {
 
   public void setMsupply(String msupply) {
     this.msupply = msupply;
-  }
-
- /* public static ArrayList<Coin> getCoins() {
-    ArrayList<Coin> coins = new ArrayList<>();
-    coins.add(new Coin("Bitcoin", "BTC", "38785.21", "-5.30", "0.06", "6.25", "734812139048.78", 19044303069.795288));
-    coins.add(new Coin("Ethereum", "ETH", "2755.05", "-5.94", "0.00", "14.58", "18116094926.74", 11453091518.956093));
-    coins.add(new Coin("XRP", "XRP", "0.765035", "-6.10", "0.36", "8.03", "9975961452.76", 1857161424.9047709));
-    coins.add(new Coin("Bitcoin Cash", "BCH", "313.48", "-5.25", "0.31", "25.16", "6061849292.55", 4034762667.1342015));
-    coins.add(new Coin("Bitcoin SV", "BCHSV", "84.44", "6.09", "0.98", "71.68", "5003375789.67", 2920688747.7987976));
-    coins.add(new Coin("Tether", "USDT", "0.996530", "0.09", "-0.04", "0.29", "4051244046.05",32969047733.32528));
-    coins.add(new Coin("Litecoin", "LTC", "110.04", "-6.42", "0.35", "12.84", "3665038765.74", 3433599488.5887113));
-    coins.add(new Coin("EOS", "EOS", "2.15", "-7.21", "-0.11", "12.92", "3324669063.56", 3353780327.053705));
-    coins.add(new Coin("Binance Coin", "BNB", "373.06", "-5.04", "0.24", "12.51", "2675482775.95", 233309183.3948947));
-    coins.add(new Coin("Stellar", "XLM", "0.190500", "-2.09", "1.78", "25.85", "1232939271.42", 502557303.372596));
-    return coins;
-  } */
-
-  public static Coin findCoin(String symbol) {
-    Gson gson = new Gson();
-    CoinLoreResponse coinLoreResponse = gson.fromJson(CoinLoreResponse.jsonData, CoinLoreResponse.class);
-    List<Coin> coins = coinLoreResponse.getData();
-   // List<Coin> coins = Coin.getCoins();
-    for(final Coin coin : coins) {
-      if(coin.getSymbol().equals(symbol)) {
-        return coin;
-      }
-    }
-    return null;
   }
 
 }

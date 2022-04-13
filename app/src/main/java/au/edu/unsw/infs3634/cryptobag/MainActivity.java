@@ -17,10 +17,12 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
   private RecyclerView mRecyclerView;
   private CoinAdapter mAdapter;
   private RecyclerView.LayoutManager mLayoutManager;
-  public static final String response = CoinLoreResponse.jsonData;
+  private CoinDatabase database;
 
 
   @Override
@@ -56,11 +58,6 @@ public class MainActivity extends AppCompatActivity {
     // Get a handle to the RecyclerView
     mRecyclerView = findViewById(R.id.rvList);
     mRecyclerView.setHasFixedSize(true);
-
-  //  Gson gson = new Gson();
-  //  CoinLoreResponse coinLoreResponse = gson.fromJson(response, CoinLoreResponse.class);
-
- //   List<Coin> coin = coinLoreResponse.getData();
 
     // Instantiate a LinearLayoutManager
     mLayoutManager = new LinearLayoutManager(this);
@@ -74,40 +71,49 @@ public class MainActivity extends AppCompatActivity {
         launchDetailActivity(coinSymbol);
       }
     };
-    // Create an adapter instance and supply the coins data to be displayed
-   // mAdapter = new CoinAdapter((ArrayList<Coin>) coin, listener);
+
+    // Create an adapter instance with an empty ArrayList of Coin objects
     mAdapter = new CoinAdapter(new ArrayList<Coin>(), listener);
 
-     mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
-    // Connect the adapter with the RecyclerView
-       mRecyclerView.setAdapter(mAdapter);
+    database = Room.databaseBuilder(getApplicationContext(), CoinDatabase.class, "coin-database").build();
 
- // }
+    // Implement Retrofit to make API call
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("https://api.coinlore.net") // Set the base URL
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
 
-  Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.coinlore.net").addConverterFactory(GsonConverterFactory.create()).build();
-  CoinService service = retrofit.create(CoinService.class);
-  Call<CoinLoreResponse> responseCall = service.getResponse();
-  responseCall.enqueue(new Callback<CoinLoreResponse>()
+    // Create object for the service interface
+    CoinService service = retrofit.create(CoinService.class);
+    Call<CoinLoreResponse> responseCall = service.getResponse();
+    responseCall.enqueue(new Callback<CoinLoreResponse>() {
+      @Override
+      public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
+        Log.d(TAG, "API call successful!");
+        List<Coin> coins = response.body().getData();
 
-  {
-    @Override
-    public void onResponse (Call<CoinLoreResponse> call, Response<CoinLoreResponse> response){
-    Log.d(TAG, "API call successful!");
-    List<Coin> coins = response.body().getData();
-    Log.d(TAG, coins.get(1).getPriceUsd());
-    mAdapter.setData((ArrayList)coins);
-    mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
-    mRecyclerView.setAdapter(mAdapter);
 
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+          @Override
+          public void run() {
+            database.coinDao().deleteAll();
+            database.coinDao().insertCoins(coins.toArray(new Coin[0]));
+          }
+        });
+
+        // Supply data to the adapter to be displayed
+        mAdapter.setData((ArrayList)coins);
+        mAdapter.sort(CoinAdapter.SORT_METHOD_NAME);
+        // Connect the adapter with the RecyclerView
+        mRecyclerView.setAdapter(mAdapter);
+      }
+
+      @Override
+      public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
+        Log.d(TAG, "API call failure.");
+      }
+    });
   }
-
-    @Override
-    public void onFailure (Call < CoinLoreResponse > call, Throwable t){
-    Log.d(TAG, "API call failure");
-  }
-  });
-}
-
 
   @Override
   // Instantiate the menu
@@ -145,8 +151,6 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
   }
-
-
 
   // Called when user taps on a row on the RecyclerView
   private void launchDetailActivity(String message){

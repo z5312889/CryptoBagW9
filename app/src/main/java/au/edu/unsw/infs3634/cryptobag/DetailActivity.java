@@ -1,6 +1,7 @@
 package au.edu.unsw.infs3634.cryptobag;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Room;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -11,9 +12,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,7 +37,8 @@ public class DetailActivity extends AppCompatActivity {
     private TextView mMarketcap;
     private TextView mVolume;
     private ImageView mSearch;
-
+    private ImageView mArt;
+    private CoinDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +46,8 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         // Get handle for view elements
+        mArt = findViewById(R.id.ivImage);
+
         mName = findViewById(R.id.tvName);
         mSymbol = findViewById(R.id.tvSymbol);
         mValue = findViewById(R.id.tvValueField);
@@ -56,51 +63,49 @@ public class DetailActivity extends AppCompatActivity {
         if (intent.hasExtra(INTENT_MESSAGE)) {
             String coinSymbol = intent.getStringExtra(INTENT_MESSAGE);
             Log.d(TAG, "INTENT_MESSAGE = " + coinSymbol);
-            Coin coin = Coin.findCoin(coinSymbol);
 
-            Retrofit retrofit = new Retrofit.Builder().baseUrl("https://api.coinlore.net").addConverterFactory(GsonConverterFactory.create()).build();
-            CoinService service = retrofit.create(CoinService.class);
-            Call<CoinLoreResponse> responseCall = service.getResponse();
-            responseCall.enqueue(new Callback<CoinLoreResponse>() {
+            database = Room.databaseBuilder(getApplicationContext(), CoinDatabase.class, "coin-database").build();
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
                 @Override
-                public void onResponse(Call<CoinLoreResponse> call, Response<CoinLoreResponse> response) {
-                    List<Coin> coins = response.body().getData();
-                    for (Coin coin : coins) {
-                        if (coinSymbol.equals(coin.getName())) {
+                public void run() {
+                    Coin coin = database.coinDao().getCoin(coinSymbol);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            NumberFormat formatter = NumberFormat.getCurrencyInstance();
+                            setTitle(coin.getName());
+                            mName.setText(coin.getName());
+                            Glide.with(DetailActivity.this)
+                                    .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
+                                    .fitCenter()
+                                    .into(mArt);
+                            mSymbol.setText(coin.getSymbol());
+                            mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
+                            mChange1h.setText(String.valueOf(coin.getPercentChange1h()) + " %");
+                            mChange24h.setText(String.valueOf(coin.getPercentChange24h()) + " %");
+                            mChange7d.setText(String.valueOf(coin.getPercentChange7d()) + " %");
+                            mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
+                            mVolume.setText(formatter.format(coin.getVolume24()));
+                            mSearch.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    searchCoin(coin.getName());
+                                }
+                            });
 
-                            if (coin != null) {
-                                NumberFormat formatter = NumberFormat.getCurrencyInstance();
-                                setTitle(coin.getName());
-                                mName.setText(coin.getName());
-                                mSymbol.setText(coin.getSymbol());
-                                mValue.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
-                                mChange1h.setText(coin.getPercentChange1h() + " %");
-                                mChange24h.setText(coin.getPercentChange24h() + " %");
-                                mChange7d.setText(coin.getPercentChange7d() + " %");
-                                mMarketcap.setText(formatter.format(Double.valueOf(coin.getMarketCapUsd())));
-                                mVolume.setText(formatter.format(coin.getVolume24()));
-                                mSearch.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
-                                        startActivity(intent);
-                                    }
-                                    //  searchCoin(coin.getName());
-                                });
-                            }
                         }
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<CoinLoreResponse> call, Throwable t) {
-
-                    //  private void searchCoin(String name) {
-                    //      Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + coin.getName()));
-                    //     startActivity(intent);
+                    });
                 }
             });
-        }
 
+
+
+        }
     }
+
+    private void searchCoin(String name) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/search?q=" + name));
+        startActivity(intent);
+    }
+
 }
