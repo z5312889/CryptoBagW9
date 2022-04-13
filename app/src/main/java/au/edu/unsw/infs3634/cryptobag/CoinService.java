@@ -5,6 +5,6 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 
 public interface CoinService {
-    @GET("api/tickets/")
-    Call<CoinLoreResponse>getResponse();
+    @GET("api/tickers")
+    Call<CoinLoreResponse> getResponse();
 }

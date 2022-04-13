@@ -3,6 +3,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -96,7 +99,10 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
         holder.value.setText(formatter.format(Double.valueOf(coin.getPriceUsd())));
         holder.change.setText(String.valueOf(coin.getPercentChange1h()) + " %");
         holder.itemView.setTag(coin.getSymbol());
-
+        Glide.with(holder.itemView)
+                .load("https://www.coinlore.com/img/" + coin.getNameid() + ".png")
+                .fitCenter()
+                .into(holder.image);
     }
 
     // Return the number of data items available for displaying
@@ -108,6 +114,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
     // Extend the signature of CoinViewHolder to implement a click listener
     public static class CoinViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         public TextView name, value, change;
+        public ImageView image;
         public RecyclerViewListener mListener;
 
         // Constructor method for CoinViewHolder class
@@ -118,6 +125,7 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
             name = itemView.findViewById(R.id.tvName);
             value = itemView.findViewById(R.id.tvValue);
             change = itemView.findViewById(R.id.tvChange);
+            image = itemView.findViewById(R.id.ivArt);
         }
 
         @Override
@@ -145,9 +153,11 @@ public class CoinAdapter extends RecyclerView.Adapter<CoinAdapter.CoinViewHolder
         notifyDataSetChanged();
     }
 
+    // Set the supplied data to the adapter
     public void setData(ArrayList<Coin> data) {
         mCoins.clear();
         mCoins.addAll(data);
         notifyDataSetChanged();
     }
+
 }
