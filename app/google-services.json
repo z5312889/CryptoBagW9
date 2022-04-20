@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "423670480344",
+    "project_id": "cryptobag-d3bba",
+    "storage_bucket": "cryptobag-d3bba.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:423670480344:android:4ec4a04e2c4853cc8686ad",
+        "android_client_info": {
+          "package_name": "au.edu.unsw.infs3634.cryptobag"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "423670480344-ald9qich6dn2bfkjqq446c07efks61gk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXgfz4aDlPmhL7onQ-KbU6AK00MJxzVxc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "423670480344-ald9qich6dn2bfkjqq446c07efks61gk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
